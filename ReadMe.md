@@ -1,13 +1,19 @@
-# Project Name: First Project
+# Retrieving climates from the last glacial maximum using an invert glacier model
 
 ## Description
-This is my first project, aimed at inverting paleo glacier footprints to reconstruct paleo climate. The project is divided into two main parts: emulation and inversion.
+This is my thesis project, aimed at inverting paleo glacier footprints to reconstruct paleo climate. The project is divided into two main parts: emulation and inversion.
 
 ## Emulation
 The emulation phase of the project focuses on simulating the paleo glacier footprints based on available data and historical records. This step involves creating models and algorithms that accurately represent the behavior and characteristics of paleo glaciers.
 
+![Emulation Figure](images/VisualizeEmulator.png)
+*Figure 1: Sample figure illustrating the emulation process.*
+
 ## Inversion
 The inversion phase is dedicated to the reconstruction of paleo climate by analyzing the inverted paleo glacier footprints. This step involves applying advanced techniques to extract meaningful information from the reconstructed footprints and infer past climate conditions.
+
+![Inversion Figure](images/VisualizeInversion.png)
+*Figure 2: Sample figure showcasing the inversion process.*
 
 ## Getting Started
 To get started with this project, follow the steps below:
@@ -29,4 +35,4 @@ Contributions to this project are welcome. If you would like to contribute, plea
 - Submit a pull request.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [UNIL License](LICENSE).
