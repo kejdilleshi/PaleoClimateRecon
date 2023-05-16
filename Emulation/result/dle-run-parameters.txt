@@ -1,4 +1,4 @@
-                       dataset : ela_data
+                       dataset : Gaussian_ela_data
                        maptype : fKD
                        network : cnn
                  conv_ker_size : 3

@@ -1,3 +1,4 @@
-#Emulation/fordle/
-
+# Ignore all big data .nc. Ignore log files .log
+Emulation/result_*/
 *.nc
+*.log

@@ -24,17 +24,17 @@
                 uplift_include : False
                    uplift_rate : 0.002
             uplift_update_freq : 100
-        iceflow_model_lib_path : /home/klleshi/Desktop/igm/model-lib/fKD_IGM_KLL_22_a
+        iceflow_model_lib_path : ../Emulation/result
           multiple_window_size : 0
               force_max_velbar : 0
                       optimize : False
              opti_vars_to_save : ['topg', 'usurf', 'thk', 'strflowctrl', 'arrhenius', 'slidingco', 'velsurf_mag', 'velsurfobs_mag', 'divflux']
-              observation_file : observation.nc
+              observation_file : obs_test.nc
              thk_profiles_file : 
                      mode_opti : thkstrflowctrl
           opti_thr_strflowctrl : 78.0
             opti_init_zero_thk : False
-           opti_regu_param_thk : 5.0
+           opti_regu_param_thk : 10.0
    opti_regu_param_strflowctrl : 1.0
  opti_smooth_anisotropy_factor : 0.2
          opti_convexity_weight : 0.002

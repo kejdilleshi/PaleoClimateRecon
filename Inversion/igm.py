@@ -742,9 +742,9 @@ class Igm:
         """
         set-up the iceflow emulator
         """
-        #dirpath = os.path.join(self.config.iceflow_model_lib_path, str(2000))
+        dirpath = self.config.iceflow_model_lib_path
         
-        dirpath = os.path.join(self.config.iceflow_model_lib_path, str(int(self.dx)))
+        #dirpath = os.path.join(self.config.iceflow_model_lib_path, str(int(self.dx)))
 
         assert os.path.isdir(dirpath)
 
@@ -2264,14 +2264,14 @@ class Igm:
                 
                 
                 if i % self.config.opti_output_freq == 0:
-                    print("The mean error between observations and calculations : ",np.abs(np.mean(self.max_thk_obs - max_thk_calc)))
-                    np.save('parameterevolution/ela{}.npy'.format(i),self.ela)
+                    print("Step {}, mean error between observations and calculations: {}".format(i,np.abs(np.mean(self.max_thk_obs - max_thk_calc))))
+                    np.save('parameterevolution/ela_step{}.npy'.format(i),self.ela)
                 #self.tcomp["Optimize"][-1] -= time.time()
                 #self.tcomp["Optimize"][-1] *= -1
                 
         
         #print(max_thk_calc.shape)
-        np.save('ela.npy',self.ela)    
+        np.save('parameterevolution/Inverted_ELA.npy',self.ela)    
                       
             
     

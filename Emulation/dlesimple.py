@@ -183,79 +183,13 @@ class dle:
             "fieldin": ["topg", "ela"],
             "fieldout": ["max_thk"],
         }
-
-        self.mappings["f2"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy"],
-            "fieldout": ["ubar", "vbar"],
-        }
-
-        self.mappings["f10"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "strflowctrl"],
-            "fieldout": ["ubar", "vbar"],
-        }
-
-        self.mappings["f11"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "arrhenius","slidingco"],
-            "fieldout": ["ubar", "vbar"],
-        }
-
-        self.mappings["f12"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "strflowctrl"],
-            "fieldout": ["ubar", "vbar", "uvelsurf", "vvelsurf"],
-        }
-
-        self.mappings["f13"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "arrhenius","slidingco"],
-            "fieldout": ["ubar", "vbar", "uvelsurf", "vvelsurf"],
-        }
-
-        self.mappings["f14"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "strflowctrl"],
-            "fieldout": ["uvelbase","vvelbase","ubar","vbar","uvelsurf","vvelsurf"],
-        }
-
-        self.mappings["f15"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "arrhenius","slidingco"],
-            "fieldout": ["uvelbase","vvelbase","ubar","vbar","uvelsurf","vvelsurf"],
-        }
-        
-        self.mappings["f16"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "strflowctrl"],
-            "fieldout": ["uvelbase","vvelbase","ubar","vbar","uvelsurf","vvelsurf"],
-        }
-        
-        self.mappings["f17"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy", "arrhenius","slidingco"],
-            "fieldout": ["uvelbase","vvelbase","wvelbase","ubar","vbar","uvelsurf","vvelsurf","wvelsurf"],
-        }
-        
-        self.mappings["f99"] = {
-            "fieldin": ["thk", "slopsurfx", "slopsurfy","slidingco"],
-            "fieldout": ["uvelbase","vvelbase","uvelsurf","vvelsurf"],
-        }
   
         self.naturalbounds = {}
         #
-        self.naturalbounds["max_thk"]     = 2850.0
+        self.naturalbounds["max_thk"]     = 2750.0
         self.naturalbounds["topg"]   	  = 4550.0
-        self.naturalbounds["ela"]   	  = 1210.0
+        self.naturalbounds["ela"]   	  = 1835.0
         #
-        self.naturalbounds["thk"]         = 2000.0
-        self.naturalbounds["slopsurfx"]   = 1.5
-        self.naturalbounds["slopsurfy"]   = 1.5
-        self.naturalbounds["slopsurfn"]   = 1.5
-        self.naturalbounds["ubar"]        = 1000.0
-        self.naturalbounds["vbar"]        = 1000.0
-        self.naturalbounds["wbar"]        = 100.0
-        self.naturalbounds["uvelsurf"]    = 1000.0
-        self.naturalbounds["vvelsurf"]    = 1000.0
-        self.naturalbounds["wvelsurf"]    = 100.0
-        self.naturalbounds["uvelbase"]    = 1000.0
-        self.naturalbounds["vvelbase"]    = 1000.0
-        self.naturalbounds["wvelbase"]    = 100.0
-        self.naturalbounds["strflowctrl"] = 200.0
-        self.naturalbounds["arrhenius"]   = 100.0
-        self.naturalbounds["slidingco"]   = 100.0
 
     def initialize(self):
         """
