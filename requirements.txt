@@ -1,0 +1,12 @@
+ipython==8.5.0
+keras_unet_collection==0.1.13
+matplotlib==3.5.3
+netCDF4==1.6.0
+netCDF4==1.6.3
+numpy==1.23.1
+numpy==1.19.5
+scipy==1.9.1
+tensorflow==2.4.0
+tensorflow_addons==0.17.1
+tensorflow_gpu==2.4.0
+xarray==2022.6.0
