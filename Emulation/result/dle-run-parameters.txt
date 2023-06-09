@@ -1,4 +1,4 @@
-                       dataset : Gaussian_ela_data
+                       dataset : AllTopo4k
                        maptype : fKD
                        network : cnn
                  conv_ker_size : 3

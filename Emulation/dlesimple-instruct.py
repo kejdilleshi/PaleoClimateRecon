@@ -14,7 +14,7 @@ session = tf.compat.v1.Session(config=config)
 dle = dle()
 
 dle.config.network='cnn'
-dle.config.dataset='Gaussian_ela_data'
+dle.config.dataset='AllTopo4k'
 dle.config.maptype='fKD'
 dle.config.epochs = 100
 dle.config.data_dir='fordle'

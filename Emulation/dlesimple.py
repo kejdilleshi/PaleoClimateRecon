@@ -180,15 +180,17 @@ class dle:
         self.mappings = {}
         
         self.mappings["fKD"] = {
-            "fieldin": ["topg", "ela"],
-            "fieldout": ["max_thk"],
+            "fieldin": ["topg", "ela","time"],
+            "fieldout": ["gfp"],
         }
   
         self.naturalbounds = {}
         #
-        self.naturalbounds["max_thk"]     = 2750.0
-        self.naturalbounds["topg"]   	  = 4550.0
-        self.naturalbounds["ela"]   	  = 1835.0
+        self.naturalbounds["gfp"]         = 3550.0
+        self.naturalbounds["topg"]   	  = 5550.0
+        self.naturalbounds["ela"]   	  = 2235.0
+        self.naturalbounds["time"]   	  = 4.0
+
         #
 
     def initialize(self):
