@@ -64,6 +64,24 @@ def get_args():
         help="Learning rate"
     )
     parser.add_argument(
+        "--opti_nbitmax", 
+        type=int, 
+        default=10000, 
+        help="Maximal number of itterations"
+    )
+    parser.add_argument(
+        "--opti_regu_grad_ela", 
+        type=int, 
+        default=10000, 
+        help="Regulariazation"
+    )
+    parser.add_argument(
+        "--opti_regu_grad_time", 
+        type=int, 
+        default=10000, 
+        help="Regulariazation"
+    )
+    parser.add_argument(
         "--clipnorm",
         type=float,
         default=0.5,
@@ -126,10 +144,28 @@ def get_args():
         help="Path of the data folder",
     )
     parser.add_argument(
+        "--modeldir",
+        type=str,
+        default="fordle",
+        help="Path of the model folder",
+    )
+    parser.add_argument(
+        "--model_dir",
+        type=str,
+        default="../Logs",
+        help="Path of the pretrained model",
+    )
+    parser.add_argument(
         "--results_dir",
         type=str,
         default="results",
         help="Path of the results folder",
+    )
+    parser.add_argument(
+        "--obs_file",
+        type=str,
+        default="observation.nc",
+        help="observation file",
     )
     # Add other arguments 
      
@@ -158,6 +194,18 @@ def get_args():
         help="Coarsen data by averaging to generate other resolution",
     )
     parser.add_argument(
+        "--l1_lambda",
+        type=float,
+        default=1.0,
+        help="coeficient on the missfit function",
+    )
+    parser.add_argument(
+        "--l2_lambda",
+        type=float,
+        default=1.0,
+        help="coeficient on the missfit function",
+    )
+    parser.add_argument(
         "--include_test_in_train",
         type=str2bool,
         default=False,
@@ -167,6 +215,12 @@ def get_args():
         "--save_model_each",
         type=int,
         default=10000,
+        help="The model is save each --save_model_each epochs",
+    )
+    parser.add_argument(
+        "--save_freq",
+        type=int,
+        default=1000,
         help="The model is save each --save_model_each epochs",
     )
     parser.add_argument(

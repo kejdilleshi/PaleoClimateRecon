@@ -46,27 +46,41 @@ class ModelEvaluator:
         plt.title('Model loss')
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper right')
+        plt.legend(['Train', 'Validate'], loc='upper right')
         plt.savefig(os.path.join(self.args.results_dir,"Lr_.png"))
 
-    def plotresu_f(self, pathofresults, pred_outputs, true_outputs, idx):
         
+    def plotresu_f(self, pathofresults, pred_outputs, true_outputs, idx):
         m1 = tf.keras.metrics.MeanAbsoluteError()
         mae = m1(pred_outputs, true_outputs)
-
+    
         m2 = tf.keras.metrics.RootMeanSquaredError()
         mse = m2(pred_outputs, true_outputs)
-
+    
         pred_outputs0 = np.linalg.norm(pred_outputs, axis=2)
         true_outputs0 = np.linalg.norm(true_outputs, axis=2)
-
+    
+        # Rotate the predicted and true outputs by 90 degrees counterclockwise
+        pred_outputs0 = np.rot90(pred_outputs0,k=3)
+        true_outputs0 = np.rot90(true_outputs0,k=3)
+    
+        # Flip the predicted and true outputs left to right
+        pred_outputs0 = np.fliplr(pred_outputs0)
+        true_outputs0 = np.fliplr(true_outputs0)
+    
+        # Calculate the difference between the true and predicted outputs
+        diff_outputs0 = (true_outputs0 - pred_outputs0)
+    
         valmaxx = max(
             [np.quantile(pred_outputs0, 0.999), np.quantile(true_outputs0, 0.999)]
         )
-
-        fig, (ax2, ax1) = plt.subplots(1, 2, figsize=(20, 10))
-
-        ax1.set_title("PREDICTED, mae: %.5f, mse: %.5f" % (mae, mse))
+    
+        # Find the maximum absolute value in the difference
+        max_diff = np.max(np.abs(diff_outputs0))
+    
+        fig, (ax2, ax1, ax3) = plt.subplots(1,3, figsize=(30,10))
+    
+        ax1.set_title("PREDICTED")
         im1 = ax1.imshow(
             pred_outputs0,
             origin="lower",
@@ -78,7 +92,7 @@ class ModelEvaluator:
         cax1 = divider.append_axes("right", size="5%", pad=0.05)
         cbar1 = plt.colorbar(im1, format="%.2f", cax=cax1)
         ax1.axis("off")
-
+    
         ax2.set_title("TRUE")
         im2 = ax2.imshow(
             true_outputs0,
@@ -91,10 +105,25 @@ class ModelEvaluator:
         cax2 = divider.append_axes("right", size="5%", pad=0.05)
         cbar2 = plt.colorbar(im2, format="%.2f", cax=cax2)
         ax2.axis("off")
-
+    
+        # Plot the difference between the true and predicted outputs
+        ax3.set_title("DIFFERENCE, mae: %.5f, mse: %.5f" % (mae, mse))
+        im3 = ax3.imshow(
+            diff_outputs0,
+            origin="lower",
+            vmin=-max_diff,  # Set vmin to negative of max_diff
+            vmax=max_diff,  # Set vmax to max_diff
+            cmap=cm.get_cmap("seismic"),
+        )
+        divider = make_axes_locatable(ax3)
+        cax3 = divider.append_axes("right", size="5%", pad=0.05)
+        cbar3 = plt.colorbar(im3, format="%.2f", cax=cax3)
+        ax3.axis("off")
+    
         plt.tight_layout()
-        
+    
          # Save the figure for this test sample
         plt.savefig(os.path.join(pathofresults,"evaluation_{}.png".format(idx)))
-        
+        plt.close(fig)
+    
     

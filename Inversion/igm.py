@@ -36,6 +36,7 @@ from scipy.interpolate import interp1d, CubicSpline, RectBivariateSpline, gridda
 import argparse
 from scipy import stats
 
+
 def str2bool(v):
     return v.lower() in ("true", "1")
 
@@ -282,7 +283,8 @@ class Igm:
         if not hasattr(self, "max_thk"):
             self.max_thk = tf.Variable(tf.zeros((self.y.shape[0], self.x.shape[0])))
 
-
+        if not hasattr(self, "time"):
+            self.time = tf.Variable(tf.ones((self.y.shape[0], self.x.shape[0])))
         # at this point, we should have defined at least topg or usurf
         assert hasattr(self, "topg") | hasattr(self, "usurf")
 
@@ -2177,7 +2179,7 @@ class Igm:
         # make sure the loaded ice flow emulator has these inputs
         assert (
             self.iceflow_mapping["fieldin"]
-            == ["topg","ela"]
+            == ["topg","ela","time"]
         )
         # make sure the loaded ice flow emulator has at least these outputs
         assert all(
@@ -2190,17 +2192,20 @@ class Igm:
         ###### PREPARE VARIABLES TO OPTIMIZE
         topg = tf.Variable(self.topg / self.iceflow_fieldbounds["topg"])  # normalized vars
         ela = tf.Variable(self.ela / self.iceflow_fieldbounds["ela"])  # normalized vars
-        
+        time = tf.Variable(self.time / self.iceflow_fieldbounds["time"])  # normalized vars
         self.costs = []
         
         self.tcomp["Optimize"] = []
         
+        #cost functions
+        cost_ela=[]
+        reg_ela=[]
+        reg_t=[]
         # main loop
         for i in range(self.config.opti_nbitmax):
             with tf.GradientTape() as t:
-                t.watch(topg)
                 t.watch(ela)
-                
+                t.watch(time)
                 # build input of the emulator
                 X = tf.concat(
                     [
@@ -2210,9 +2215,16 @@ class Igm:
                             ),
                             axis=-1,
                         ),
+                        
                         tf.expand_dims(
                             tf.expand_dims(
                                 tf.pad(ela, self.PAD, "CONSTANT"), axis=0
+                            ),
+                            axis=-1,
+                        ),
+                        tf.expand_dims(
+                            tf.expand_dims(
+                                tf.pad(time, self.PAD, "CONSTANT"), axis=0
                             ),
                             axis=-1,
                         ),
@@ -2228,28 +2240,44 @@ class Igm:
                 max_thk_calc = (
                     Y[0, :Ny, :Nx, 0] * self.iceflow_fieldbounds["max_thk"]
                 )  # NOT normalized vars
-                
+
                 ACT = ~tf.math.is_nan(self.max_thk_obs)
-                COST_ela = 0.5 * tf.reduce_mean(
-                    (
-                        (self.max_thk_obs[ACT] - max_thk_calc[ACT])
-                    )
-                    ** 2
-                )
+                
+                # COST_ela =tf.reduce_sum(tf.abs(self.max_thk_obs[ACT] - max_thk_calc[ACT]))
+                COST_ela =0.5*tf.reduce_mean((self.max_thk_obs[ACT] - max_thk_calc[ACT])**2)
+                
+                
                 dedx=(ela[:,1:]-ela[:,:-1])/1
                 dedy=(ela[1:,:]-ela[:-1,:])/1
                 REGU_ela=self.config.opti_regu_grad_ela[i]*(tf.nn.l2_loss(dedx)+tf.nn.l2_loss(dedy))
                 
-                de2dx2=(np.diff(ela,n=2,axis=1))/1
-                de2dy2=(np.diff(ela,n=2,axis=0))/1
-                #REGU_ela_2 = self.config.opti_regu_curv_ela[i]*(tf.nn.l2_loss(de2dx2)+tf.nn.l2_loss(de2dy2))
+                dedx=(time[:,1:]-time[:,:-1])/1
+                dedy=(time[1:,:]-time[:-1,:])/1
+                REGU_time=self.config.opti_regu_grad_time*(tf.nn.l2_loss(dedx)+tf.nn.l2_loss(dedy))
                 
-                COST = COST_ela + REGU_ela #+ REGU_ela_2
+                # Penalize values out of the prefered distribution.
+                if "time" in self.config.opti_control:
+                    COST_HPO = 10 ** 20 * tf.math.reduce_mean(
+                        tf.where(time >= 0, 0.0, time)
+                    )
+                else:
+                    COST_HPO = tf.Variable(0.0)
+                
+                
+                COST = COST_ela + REGU_ela + REGU_time +np.abs(COST_HPO)
+                # print(COST_ela.numpy().item(),REGU_ela.numpy().item(),REGU_time.numpy().item())
+                
+                #save the costs
+                cost_ela.append(COST_ela.numpy().item())
+                reg_ela.append(REGU_ela.numpy().item())
+                reg_t.append(REGU_time.numpy().item())   
+                             
                 var_to_opti = []
                 if "ela" in self.config.opti_control:
                     var_to_opti.append(ela)
-                #if "topg" in self.config.opti_control:
-                #    var_to_opti.append(topg)
+                if "time" in self.config.opti_control:
+                    var_to_opti.append(time)
+
                 # Compute gradient of COST w.r.t. X
                 grads = tf.Variable(t.gradient(COST, var_to_opti))
                 
@@ -2257,22 +2285,26 @@ class Igm:
                 optimizer.apply_gradients(
                     zip([grads[i] for i in range(grads.shape[0])], var_to_opti)
                 )
-                
                 # get back optimized variables in the pool of self.variables
                 self.ela.assign(ela*self.iceflow_fieldbounds["ela"])
-                #self.topg.assign(topg* self.iceflow_fieldbounds["topg"])
-                
-                
+                self.time.assign(time* self.iceflow_fieldbounds["time"])
+
                 if i % self.config.opti_output_freq == 0:
-                    print("Step {}, mean error between observations and calculations: {}".format(i,np.abs(np.mean(self.max_thk_obs - max_thk_calc))))
+                    print("Step {}, L1: {} and L2 : {}".format(i,np.sum(np.abs(self.max_thk_obs - max_thk_calc)), np.sqrt(np.sum((self.max_thk_obs - max_thk_calc)) ** 2)))
+                    print(COST_HPO.numpy().item())
                     np.save('parameterevolution/ela_step{}.npy'.format(i),self.ela)
+                    np.save('parameterevolution/time_step{}.npy'.format(i),self.time)
+                    # np.save('parameterevolution/gradient{}.npy'.format(i),grads.numpy())
                 #self.tcomp["Optimize"][-1] -= time.time()
                 #self.tcomp["Optimize"][-1] *= -1
                 
         
         #print(max_thk_calc.shape)
         np.save('parameterevolution/Inverted_ELA.npy',self.ela)    
-                      
+        np.save('parameterevolution/Inverted_time.npy',self.time)
+        np.savetxt('cost_ela.csv',cost_ela,delimiter=',')            
+        np.savetxt('regu_ela.csv',reg_ela,delimiter=',')            
+        np.savetxt('reg_time.csv',reg_t,delimiter=',')            
             
     
     
