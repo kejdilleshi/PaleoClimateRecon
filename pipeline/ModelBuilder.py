@@ -23,41 +23,6 @@ class ModelBuilder:
         else:
             raise ValueError(f"Invalid model type: {model_type}")
 
-    # def cnn(self, nb_inputs, nb_outputs,hparams):
-    #     """
-    #         Routine serve to build a convolutional neural network
-    #     """
-
-    #     inputs = tf.keras.layers.Input(shape=[None, None, nb_inputs])
-
-    #     conv = inputs
-        
-    #     if self.config.activation == "lrelu":
-    #         activation = tf.keras.layers.LeakyReLU(alpha=0.01)
-    #     else:
-    #         activation = tf.keras.layers.ReLU()
-
-    #     for i in range(int(hparams[HP_NB_LAYERS])):
-
-    #         conv = tf.keras.layers.Conv2D(
-    #             filters=hparams[HP_NB_FILTERS],
-    #             kernel_size=(hparams[HP_CONV_KER_SIZE], hparams[HP_CONV_KER_SIZE]),
-    #             kernel_regularizer=tf.keras.regularizers.l2(self.config.regularization),
-    #             padding="same",
-    #         )(conv)
-            
-    #         conv = activation(conv)
-
-    #         conv = tf.keras.layers.Dropout(hparams[HP_DropoutRata])(conv) # add dropout layer here
-
-    #     outputs = conv
-    #     # Fully connected layer
-    #     outputs = tf.keras.layers.Conv2D(filters=nb_outputs, \
-    #                                      kernel_size=(1, 1), \
-    #                                      activation=None)(outputs)
-
-    #     return tf.keras.models.Model(inputs=inputs, outputs=outputs)
-
     def cnn(self, nb_inputs, nb_outputs,hparams):
      """
          Routine serve to build a convolutional neural network
@@ -126,7 +91,28 @@ class ModelBuilder:
             pool="max",
             unpool=False,
             name="unet",
-        )         
+        )      
+    
+    def transfer_learning(self, model_path, unfrozen_layers):
+        """
+        Load a pre-trained model and freeze the layers except for the last 'unfrozen_layers' layers
+
+        Parameters:
+        model_path (str): The path to the pre-trained model
+        unfrozen_layers (int): The number of layers to leave unfrozen
+
+        Returns:
+        model: a Model instance with the specified layers unfrozen
+        """
+        # Load the pre-trained model
+        model = tf.keras.models.load_model(model_path)
+
+        # Freeze all the layers before the 'unfrozen_layers' layers
+        for layer in model.layers[:-unfrozen_layers]:
+            layer.trainable = False
+
+        return model   
+    
     def compile_model(self, model, hparams):
         if hparams[HP_OPTIMIZER] == 'adam':
             optimizer = tf.keras.optimizers.Adam(learning_rate=hparams[HP_LearningRata],clipnorm=self.config.clipnorm)
@@ -161,7 +147,6 @@ class ModelBuilder:
         """
         # Create an instance of the ImageDataGenerator class
         datagen = ImageDataGenerator(
-            rotation_range=20, # rotate the image up to 20 degrees
             horizontal_flip=True, # randomly flip the image horizontally
             vertical_flip=True # randomly flip the image vertically
             )
@@ -178,7 +163,7 @@ class ModelBuilder:
         )
         early_stopping = EarlyStopping(
         monitor='loss', # the quantity to monitor
-        patience=20, # number of epochs with no improvement after which training will be stopped
+        patience=10, # number of epochs with no improvement after which training will be stopped
         restore_best_weights=True # whether to restore model weights from the epoch with the best value of the monitored quantity
         )
         
@@ -201,22 +186,3 @@ class ModelBuilder:
             )   
     
         return history
-    def transfer_learning(self, model_path, unfrozen_layers):
-        """
-        Load a pre-trained model and freeze the layers except for the last 'unfrozen_layers' layers
-
-        Parameters:
-        model_path (str): The path to the pre-trained model
-        unfrozen_layers (int): The number of layers to leave unfrozen
-
-        Returns:
-        model: a Model instance with the specified layers unfrozen
-        """
-        # Load the pre-trained model
-        model = tf.keras.models.load_model(model_path)
-
-        # Freeze all the layers before the 'unfrozen_layers' layers
-        for layer in model.layers[:-unfrozen_layers]:
-            layer.trainable = False
-
-        return model

@@ -51,8 +51,14 @@ class DataLoader:
         ela=ela.T
         topg = data.variables['topg'][:]
         topg=topg.T
+        A = data.variables['A'][:]
+        A=A.T
+        beta = data.variables['beta'][:]
+        beta=beta.T
+        c = data.variables['c'][:]
+        c=c.T
 
-        return obs_gfp, time, ela, topg
+        return obs_gfp, time, ela, topg, A, beta, c
     
     def split_data_1(self, field_in, field_out, file_path=None, ratio=None):
     
