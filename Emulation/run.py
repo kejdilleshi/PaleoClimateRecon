@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/home/klleshi/Documents/PaleoClimateReconstruction')
 import tensorflow as tf
 from tensorboard.plugins.hparams import api as hp
 from pipeline import ModelBuilder, ModelEvaluator, DataLoader
